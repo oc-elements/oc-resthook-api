@@ -1,0 +1,145 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../oc-core-utils/oc-api-provider-behaviour.html">
+
+<dom-module id="oc-resthook-api">
+
+  <template>
+    <iron-ajax id="createSubscription"></iron-ajax>
+    <iron-ajax id="getSubscriptions"></iron-ajax>
+    <iron-ajax id="deleteSubscription"></iron-ajax>
+    <iron-ajax id="updateSubscription"></iron-ajax>
+    <iron-ajax id="getEventTypes"></iron-ajax>
+    <iron-ajax id="testResthook"></iron-ajax>
+    <iron-ajax id="activateResthook"></iron-ajax>
+    <iron-ajax id="deactivateResthook"></iron-ajax>
+  </template>
+
+  <script>
+    (function () {
+      'use strict';
+
+      Polymer({
+        is: 'oc-resthook-api',
+        behaviors: [OC.Behaviours.ApiProvider],
+
+        /**
+         * Create a new subscription
+         * @param {Number} organisationId
+         * @param {{url: String, eventType: String, atOrganisationId: Number}} subscription
+         * @return {Promise}
+         */
+        createSubscription: function(organisationId, subscription) {
+          this.$.createSubscription.url = this._url('organisations/' + organisationId + '/resthooks');
+          this.$.createSubscription.method = "POST";
+          this.$.createSubscription.contentType = "application/json";
+          this.$.createSubscription.body = {
+            url: subscription.url,
+            eventType: subscription.eventType,
+            atOrganisationId: organisationId
+          };
+          return this._generateRequest(this.$.createSubscription);
+        },
+
+        /**
+         * Get an organisation's subscribed resthooks
+         * @param {Number} organisationId
+         * @return {Promise}
+         */
+        getSubscriptions: function(organisationId) {
+          this.$.getSubscriptions.url = this._url('organisations/' + organisationId + '/resthooks');
+          return this._generateRequest(this.$.getSubscriptions);
+        },
+
+        /**
+         * Delete a resthook subscription
+         * @param {Number} organisationId
+         * @param {Number} subscriptionId
+         * @return {Promise}
+         */
+        deleteSubscription: function(organisationId, subscriptionId) {
+          this.$.deleteSubscription.url = this._url('organisations/' + organisationId + '/resthooks/' + subscriptionId);
+          this.$.deleteSubscription.method = "DELETE";
+          return this._generateRequest(this.$.deleteSubscription);
+        },
+
+        /**
+         * Update a resthook subscription
+         * @param {Number} organisationId
+         * @param {{id: Number, url: String, eventType: String, atOrganisationId: Number}} subscription
+         * @return {Promise}
+         */
+        updateSubscription: function(organisationId, subscription) {
+          this.$.updateSubscription.url = this._url('organisations/' + organisationId + '/resthooks/' + subscription.id);
+          this.$.updateSubscription.method = "PUT";
+          this.$.updateSubscription.contentType = "application/json";
+          this.$.updateSubscription.body = {
+            url: subscription.url,
+            eventType: subscription.eventType,
+            atOrganisationId: organisationId
+          };
+          return this._generateRequest(this.$.updateSubscription);
+        },
+
+        /**
+         * Get event types
+         * @param {Number} organisationId
+         * @return {Promise}
+         */
+        getEventTypes: function(organisationId) {
+          this.$.getEventTypes.url = this._url('organisations/' + organisationId + '/resthooks/eventTypes');
+          return this._generateRequest(this.$.getEventTypes);
+        },
+
+        /**
+         * Test a subscription
+         * @param {Number} organisationId
+         * @param {Number} subscriptionId
+         * @return {Promise}
+         */
+        testResthook: function(organisationId, subscriptionId) {
+          this.$.testResthook.url = this._url('organisations/' + organisationId + '/resthooks/' + subscriptionId + '/test');
+          return this._generateRequest(this.$.testResthook);
+        },
+
+        /**
+         * Toggle a subscription enabled/disabled
+         * @param {Number} organisationId
+         * @param {Number} subscriptionId
+         * @param {Boolean} enabled
+         * @return {Promise}
+         */
+        toggleResthookEnabled: function(organisationId, subscriptionId, enabled) {
+          return enabled ?
+                  this.activateResthook(organisationId, subscriptionId):
+                  this.deactivateResthook(organisationId, subscriptionId);
+        },
+
+        /**
+         * Activate a subscription
+         * @param {Number} organisationId
+         * @param {Number} subscriptionId
+         * @return {Promise}
+         */
+        activateResthook: function(organisationId, subscriptionId) {
+          this.$.activateResthook.url = this._url('organisations/' + organisationId + '/resthooks/' + subscriptionId + '/activate');
+          this.$.activateResthook.method = "PUT";
+          return this._generateRequest(this.$.activateResthook);
+        },
+
+        /**
+         * Deactivate a subscription
+         * @param {Number} organisationId
+         * @param {Number} subscriptionId
+         * @return {Promise}
+         */
+        deactivateResthook: function(organisationId, subscriptionId) {
+          this.$.deactivateResthook.url = this._url('organisations/' + organisationId + '/resthooks/' + subscriptionId + '/deactivate');
+          this.$.activateResthook.method = "PUT";
+          return this._generateRequest(this.$.deactivateResthook);
+        },
+      });
+    })();
+  </script>
+
+</dom-module>
